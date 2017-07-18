@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
 
 
-from __future__ import print_function
-
-
-import math
 import random
-import sys
+
+
+from jsntlib import ntl as jsntlib
 
 
 # RSA 密鑰生成器
 # 通過大素數生成公／私密鑰對
 
 
-from jsntlib import ntl as jsntlib
+'''Usage sample:
+
+rsa_keys = RSAGenerator()
+
+print('The public key is %d' % rsa_keys.public)
+print('The private key is %d' % rsa_keys.private)
+print('The divisor key is %d' % rsa_keys.divisor)
+print('The block size is %d' % rsa_keys.block)
+
+'''
 
 
 class RSAGenerator:
@@ -25,13 +32,6 @@ class RSAGenerator:
         self._privateKey = d
         self._divisorKey = n
         self._blockSize  = s
-
-        print()
-        print('The public key is %d' % self._publicKey)
-        print('The private key is %d' % self._privateKey)
-        print('The divisor key is %d' % self._divisorKey)
-        print('The block size is %d' % self._blockSize)
-        print('\n-*- Key Generated -*-\n')
 
     @property
     def public(a):
@@ -87,7 +87,6 @@ class RSAGenerator:
     # 獲取公鑰e
     @staticmethod
     def _cookPublicKey(phi_n):
-        # flag = False                          # 紀錄e與φ(n)是否互素
         eSet = []                               # 紀錄曾嘗試過的無效的e
         tmp_e = random.randrange(1, phi_n)      # 隨機生成e，並進行合理性判斷
 
@@ -95,18 +94,15 @@ class RSAGenerator:
             while tmp_e in eSet:                # 若e紀錄與eSet中，重新生成之
                 tmp_e = random.randrange(1, phi_n)
             if jsntlib.coprime(tmp_e, phi_n):   # e與φ(n)互素性質判斷
-                break
+                return tmp_e
             else:
                 eSet.append(tmp_e)              # 若不互素，則加入eSet紀錄
-
-        return tmp_e
 
     # 獲取私鑰d
     @staticmethod
     def _cookPrivateKey(phi_n, e):
         d = jsntlib.bezout(e, phi_n)[0]         # e * d ≡ 1 (mod φ(n))
 
-        # print(e, phi_n, e*d%phi_n)
         while d <= 0:
             d += phi_n
 
@@ -117,13 +113,3 @@ class RSAGenerator:
     def _cookBlockSize(_lenBit):
         size = _lenBit // 8
         return size
-
-if __name__ == '__main__':
-    rsaModule = RSAGenerator()
-    (e,n,bs) = rsaModule.getPublicKey()
-    (d,n)    = rsaModule.getPrivateKey()
-
-    # print('The public key is %d' %e)
-    # print('The private key is %d' %d)
-    # print('The divisor key is %d' %n)
-    # print('The block size is %d' %bs)

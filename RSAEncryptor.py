@@ -1,20 +1,45 @@
 # -*- coding: utf-8 -*-
 
 
-from __future__ import print_function
-
-
-import binascii
-import sys
+from jsntlib import ntl as jsntlib
 
 
 # RSA 加密器
 # 利用生成的公鑰進行加密操作
 
 
-from jsntlib import ntl as jsntlib
-from RSAGenerator import RSAGenerator
-from RSAMessager import rsachr, rsaord, rsastr, RSAMessager
+from .RSAGenerator import RSAGenerator
+from .RSAMessager  import RSAMessager
+from .RSAUtilities import rsachr, rsaord, rsastr
+
+
+'''Usage sample:
+
+# 1st set:
+plainText = b'Mathematic1'
+
+# 2nd set:
+plainText = b'Mathematic Fundation of Information security 20170323 515030910023 Óé¬¬ø ∑ø®¬∂!'
+
+# 3rd set:
+plainText = b'\
+The binascii module contains a number of methods to convert between binary and various \
+ASCII-encoded binary representations.Normally, you will not use these functions directly \
+but use wrapper modules like uu, base64, or binhex instead.The binascii module contains \
+low-level functions written in C for greater speed that are used by the higher-level modules.'
+
+# 4th set:
+plainText = u'\
+記得初中化學曾學過，紙的燃點是華氏451度，約合攝氏233度——挺有趣的，是吧？前段時間，有人用404刷爆了朋友圈。\
+其實，從技術上說，404應是「勇敢的新世界」了；現在還僅僅是451的時代，「因法律原因不可用」。\
+而那些高唱讚歌的傢伙，若尚未失智，忘記二十四字核心價值觀的第五個詞（自由），那便是非蠢即壞的。'.encode('utf-8')
+
+rsa_cipher = RSAEncrytor(plainText)
+cipherText = rsa_cipher.message
+
+print('The ciphered message is \'%s\'\n' % cipherText)
+
+'''
 
 
 class RSAEncrytor:
@@ -39,16 +64,15 @@ class RSAEncrytor:
         cipherText = self._msgEncryption(blockText[-1], publicKey, divisorKey)
         self._cipherText(True, cipherText, complement)
 
-        '''
-        self.cipherText += str(self.msgEncryption(block, publicKey, divisorKey)).rjust(len(str(divisorKey)),'0')
-        '''
-        # An alternative for the above line of code:
-        # self.cipherText += str(self.repetiveSquareModulo(self.convertUnicode2Number(stringText), publicKey, divisorKey)).rjust(len(str(divisorKey)), '0')
-
     # 獲取密文
     @property
     def message(self):
         return self._cipherText
+
+    # 獲取密鑰
+    @property
+    def keys(self):
+        return self._rsacipher
 
     # 明文分塊
     @staticmethod
@@ -61,7 +85,6 @@ class RSAEncrytor:
             blockText.append(plainText[:blockSize].ljust(blockSize, b' '))
             plainText = plainText[blockSize:]
 
-        # print('blockText=', reversed(blockText))
         return blockText, complement
 
     # 明文加密
@@ -70,7 +93,8 @@ class RSAEncrytor:
         cipherNumb = rsastr(jsntlib.modulo(numberText, publicKey, divisorKey))
         cipherText = self._Number2Unicode(cipherNumb)
 
-        print(stringText, '\t', numberText, '\t', cipherNumb, '\t', cipherText, '\t')
+        # print(stringText, '\t', numberText, '\t', cipherNumb, '\t', cipherText, '\t')
+
         return cipherText
     
     # 將字串轉化爲數字（Unicode碼）
@@ -79,10 +103,7 @@ class RSAEncrytor:
         numberText = ''
 
         for letter in stringText:
-            # print(type(stringText), letter)
             numberText += rsaord(letter).rjust(3, '0')
-            # print(letter, letter)
-            # print('numberText=', numberText)
 
         return int(numberText)
 
@@ -92,30 +113,7 @@ class RSAEncrytor:
         stringText = ''
 
         while len(numberText) > 0:
-            # print(numberText[-3:])
             stringText = rsachr(int(numberText[-3:])) + stringText
             numberText = numberText[:-3]
 
-        # print('stringText=', stringText)
         return stringText
-
-
-if __name__ == '__main__':
-    import RSAGenerator
-
-    rsa_keys = RSAGenerator.RSAGenerator()
-    (publicKey, divisorKey, blockSize) = rsa_keys.getPublicKey()
-
-    # plainText = 'Mathematic Fundation of Information security 20170323 515030910023'
-    # plainText = 'Mathmatics'
-
-    rsa_cipher = RSAEncrytor(plainText, publicKey, divisorKey, blockSize)
-    cipherText = rsa_cipher.text
-
-    print('The plain text is %s' % plainText)
-    print('The cipher text is %s' % ''.join(cipherText))
-    '''
-    cipherTextFile = open("cipherText.txt","w")
-    cipherTextFile.write("\n".join(cipherText))
-    cipherTextFile.close()
-    '''

@@ -1,39 +1,14 @@
 # -*- coding: utf-8 -*-
 
 
-from __future__ import print_function
-
-
 import math
-import sys
 
 
 # RSA 密文信息
 # 保存密文信息並用於解密
 
 
-# Python 2.7 -- int(ceil(num)) | Python 3.6 -- ceil(num)
-rsaceil = math.ceil if sys.version_info[0] > 2 else lambda x: int(math.ceil(x))
-
-
-# Python 2.7 -- unichr | Python 3.6 -- chr
-rsachr = chr if sys.version_info[0] > 2 else unichr
-
-
-# Python 2.7 -- int & long | Python 3.6 -- int
-rsaint = int if sys.version_info[0] > 2 else (int, long)
-
-
-# Python 2.7 -- xrange | Python 3.6 -- range
-rsarange = range if sys.version_info[0] > 2 else xrange
-
-
-# Python 2.7 -- unicode | Python 3.6 -- str
-rsastr = str if sys.version_info[0] > 2 else unicode
-
-
-# Python 2.7 -- unicode(ord(letter)) | Python 3.6 -- str(letter)
-rsaord = rsastr if sys.version_info[0] > 2 else lambda x: rsastr(ord(x))
+from .RSAUtilities import rsachr, rsaint, rsaceil, rsarange
 
 
 class RSAMessager(object):
@@ -64,7 +39,7 @@ class RSAMessager(object):
         self._add_block(_private)
         self._add_block(_divisor)
 
-    def __call__(self, _mode, _block=None, _compt=None):
+    def __call__(self, _mode=None, _block=None, _compt=None):
         if _mode:
             self._add_block(_block, _compt)
         else:
@@ -74,15 +49,17 @@ class RSAMessager(object):
         return self._message
 
     def __iter__(self):
-        yield self(False)
+        while True:
+            (_text, _comp) = self(False)
+            if _text is not None:
+                yield _text, _comp
+            else:
+                break
 
     def list(self):
         _list = []
-        for _ctr in rsarange(self._ceiling):
-            _text, _comp = self(False)
-            if _text is None:
-                break
-            else:
+        for (_text, _comp) in self(False):
+            if _text is not None:
                 _list.append((_text, _comp))
         return _list
 
@@ -91,7 +68,6 @@ class RSAMessager(object):
             _len = rsachr(rsaceil(math.log(_text, 256)))
             _cpm = rsachr(0)
             _txt = self._int2bytes(_text)
-            # print(_text, ' \\ ', ord(_len), ' \\ ', ord(_cpm), ' \\ ', _txt, ' \\ ', len(_txt))
 
         else:
             _len = rsachr(len(_text))
