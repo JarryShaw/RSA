@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-import sys
+import math, sys
 
 
 # RSA 常用函數
@@ -29,4 +29,5 @@ rsastr = str if sys.version_info[0] > 2 else unicode
 
 
 # Python 2.7 -- unicode(ord(letter)) | Python 3.6 -- str(letter)
-rsaord = rsastr if sys.version_info[0] > 2 else lambda x: rsastr(ord(x))
+# rsaord = rsastr if sys.version_info[0] > 2 else lambda x: rsastr(ord(x))
+rsaord = lambda x: rsastr(ord(x))

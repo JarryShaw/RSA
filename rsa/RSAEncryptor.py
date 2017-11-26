@@ -82,7 +82,7 @@ class RSAEncrytor:
         complement = 0 if tmpLength == 0 else blockSize - tmpLength
 
         while len(plainText) > 0:
-            blockText.append(plainText[:blockSize].ljust(blockSize, b' '))
+            blockText.append(plainText[:blockSize].ljust(blockSize, ' '))
             plainText = plainText[blockSize:]
 
         return blockText, complement
@@ -93,7 +93,7 @@ class RSAEncrytor:
         cipherNumb = rsastr(jsntlib.modulo(numberText, publicKey, divisorKey))
         cipherText = self._Number2Unicode(cipherNumb)
 
-        # print(stringText, '\t', numberText, '\t', cipherNumb, '\t', cipherText, '\t')
+        print(stringText, '\t', numberText, '\t', cipherNumb, '\t', cipherText, '\t')
 
         return cipherText
     

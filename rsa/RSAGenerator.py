@@ -33,6 +33,12 @@ class RSAGenerator:
         self._divisorKey = n
         self._blockSize  = s
 
+        print('The public key is %d' % e)
+        print('The private key is %d' % d)
+        print('The divisor key is %d' % n)
+        print('The block size is %d' % s)
+        print('\n-*- KEYS GENERATED -*-\n')
+
     @property
     def public(a):
         return a._publicKey
